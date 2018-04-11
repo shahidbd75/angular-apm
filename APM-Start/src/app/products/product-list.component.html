@@ -6,7 +6,7 @@
         <div class="row">
             <div class="col-md-2">Filter by:</div>
             <div class="col-md-4">
-                <input type="text" class="form-control" [(ngModel)]='formFilter'>
+                <input type="text" class="form-control" [(ngModel)]='listFilter'>
             </div>
         </div>
         <div class="row">
@@ -29,15 +29,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let product of products">
+                    <tr *ngFor="let product of filteredProduct">
                         <td>
                             <img [src]="product.imageUrl" [title]="product.productName" [style.width.px]="imageWidth" [style.margin.px]="imageMargin" *ngIf="showImage"/>
                         </td>
                         <td>{{product.productName}}</td>
-                        <td>{{product.productCode}}</td>
+                        <td>{{product.productCode | lowercase| convertToSpaces:'-' }}</td>
                         <td>{{product.releaseDate}}</td>
                         <td>{{product.price | currency:'USD':true:'1.2-2'}}</td>
-                        <td>{{product.starRating}}</td>
+                        <td><pm-star [rating]='product.starRating' (ratingClicked)='onRatingClicked($event)'></pm-star></td>
                     </tr>
                 </tbody>
             </table>

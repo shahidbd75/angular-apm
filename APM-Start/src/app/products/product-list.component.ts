@@ -1,5 +1,6 @@
-import {Component} from '@angular/core'
+import {Component, OnInit} from '@angular/core'
 import { IProduct } from './product';
+import { ProductService } from './product.service';
 
 @Component({
     selector:'pm-products',
@@ -8,12 +9,23 @@ import { IProduct } from './product';
 
 })
 
-export class ProductListComponent{
+export class ProductListComponent implements OnInit{
     pageTitle:string='Product List';
     imageWidth:number=50;
     imageMargin:number =2;
     showImage:Boolean = false;
-    formFilter:string = 'Cart';
+    _listFilter:string;
+    errorMessage:string;
+
+    get listFilter():string{
+        return this._listFilter;
+    }
+    set listFilter(value:string){
+        this._listFilter = value;
+
+        this.filteredProduct = this._listFilter ? this.performFilter(this._listFilter): this.products; 
+    }
+    filteredProduct : IProduct[];
     products: IProduct[] = [{
         "productId":1,
         "productName" : "Garden Cart",
@@ -35,7 +47,27 @@ export class ProductListComponent{
         "imageUrl" : "https://openclipart.org/image/300px/svg_to_png/189968/1389256751.png"
     }];
 
+    constructor(private productService:ProductService){        
+        this.listFilter='Cart';
+    }
+
     toggleImage():void{
         this.showImage = ! this.showImage;
+    }
+    ngOnInit():void{
+        //this.filteredProduct = this.products;
+        this.productService.getProducts()
+        .subscribe(products=> {
+            this.products =products
+            this.filteredProduct = this.products;},
+        error=>this.errorMessage=<any>error);        
+    }
+
+    performFilter(filterBy:string):IProduct[]{
+        filterBy = filterBy.toLowerCase();
+        return this.products.filter((products:IProduct)=>products.productName.toLocaleLowerCase().indexOf(filterBy) !== -1);
+    }
+    onRatingClicked(message:string){
+        this.pageTitle = 'Product List: ' + message;
     }
 }
